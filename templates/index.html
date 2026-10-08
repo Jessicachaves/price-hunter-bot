@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radar de Preços - Onde Está Mais Barato</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        },
+                        emerald: {
+                            400: '#34d399',
+                            500: '#10b981',
+                            600: '#059669',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <style>
+        .glow-effect {
+            box-shadow: 0 0 25px -5px rgba(99, 102, 241, 0.3);
+        }
+        .best-deal-glow {
+            box-shadow: 0 0 30px -5px rgba(16, 185, 129, 0.35);
+        }
+        .shimmer {
+            background: linear-gradient(90deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 100%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .filter-chip.active {
+            background-color: #4f46e5;
+            color: #ffffff;
+            border-color: #6366f1;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased selection:bg-brand-500 selection:text-white pb-20">
+
+    <!-- Navbar -->
+    <header class="border-b border-slate-800/80 bg-slate-900/70 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="location.reload()">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-emerald-500 flex items-center justify-center shadow-lg shadow-brand-500/20">
+                    <i class="fa-solid fa-tags text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">Radar de Preços</h1>
+                    <p class="text-xs text-slate-400">Comparador Inteligente Multilojas</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-3">
+                <button onclick="openAlertsModal()" class="text-xs sm:text-sm px-3.5 py-1.5 rounded-lg border border-slate-700 bg-slate-800/60 hover:bg-slate-800 text-slate-300 hover:text-white transition flex items-center space-x-2">
+                    <i class="fa-regular fa-bell text-emerald-400"></i>
+                    <span>Criar Alerta</span>
+                </button>
+                <button onclick="openFavoritesModal()" class="text-xs sm:text-sm px-3.5 py-1.5 rounded-lg border border-slate-700 bg-slate-800/60 hover:bg-slate-800 text-slate-300 hover:text-white transition flex items-center space-x-2">
+                    <i class="fa-regular fa-heart text-rose-400"></i>
+                    <span>Favoritos</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        
+        <!-- Search Hero -->
+        <div class="max-w-3xl mx-auto text-center mb-8">
+            <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-brand-500/10 text-brand-400 border border-brand-500/20 mb-3">
+                <i class="fa-solid fa-bolt text-xs"></i> Pesquisa em tempo real em dezenas de lojas brasileiras
+            </span>
+            <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-3">
+                Onde está mais barato hoje?
+            </h2>
+            <p class="text-slate-400 text-sm sm:text-base max-w-xl mx-auto mb-6">
+                Compare ofertas da <strong class="text-slate-200">Amazon, KaBuM, Fast Shop, Magazine Luiza, Mercado Livre e mais</strong>.
+            </p>
+
+            <!-- Search Form -->
+            <form id="searchForm" class="relative glow-effect rounded-2xl bg-slate-900/90 border border-slate-700/80 p-2 flex items-center shadow-2xl">
+                <div class="pl-3 pr-2 text-slate-400">
+                    <i class="fa-solid fa-magnifying-glass text-lg"></i>
+                </div>
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    placeholder="Ex: Controle PS5 DualSense, iPhone 15, RTX 4060..." 
+                    class="w-full bg-transparent text-white placeholder-slate-500 focus:outline-none text-base sm:text-lg px-2 py-2"
+                    autocomplete="off"
+                    required
+                />
+                <button 
+                    type="submit" 
+                    id="searchBtn"
+                    class="px-6 py-3 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-semibold text-sm sm:text-base shadow-lg shadow-brand-500/25 transition-all flex items-center gap-2 shrink-0">
+                    <span>Comparar Preços</span>
+                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                </button>
+            </form>
+
+            <!-- Quick Suggestions -->
+            <div class="flex flex-wrap items-center justify-center gap-2 mt-4 text-xs text-slate-400">
+                <span>Sugestões:</span>
+                <button onclick="quickSearch('Controle PS5 DualSense')" class="px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 transition">🎮 Controle PS5</button>
+                <button onclick="quickSearch('Nintendo Switch OLED')" class="px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 transition">🕹️ Switch OLED</button>
+                <button onclick="quickSearch('Fone Sony WH-1000XM5')" class="px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 transition">🎧 Sony WH-1000XM5</button>
+                <button onclick="quickSearch('Placa de Vídeo RTX 4060')" class="px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 transition">💻 RTX 4060</button>
+            </div>
+        </div>
+
+        <!-- Loading Skeleton -->
+        <div id="loadingState" class="hidden max-w-5xl mx-auto my-12 text-center">
+            <div class="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-slate-900 border border-slate-800 shadow-xl mb-6">
+                <div class="w-5 h-5 border-2 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+                <span class="text-sm font-medium text-slate-300">Consultando Amazon, KaBuM, Zoom, Magalu, Fast Shop...</span>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                <div class="h-64 rounded-2xl bg-slate-900 border border-slate-800 shimmer"></div>
+                <div class="h-64 rounded-2xl bg-slate-900 border border-slate-800 shimmer"></div>
+                <div class="h-64 rounded-2xl bg-slate-900 border border-slate-800 shimmer"></div>
+            </div>
+        </div>
+
+        <!-- Results Container -->
+        <div id="resultsContainer" class="hidden">
+            
+            <!-- Best Deal Banner -->
+            <div id="bestDealSection" class="max-w-5xl mx-auto mb-8">
+                <!-- Injected by JS -->
+            </div>
+
+            <!-- Filters Section -->
+            <div class="max-w-5xl mx-auto space-y-4 mb-6">
+                
+                <!-- Filter by Store / Site (Pills) -->
+                <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-2 text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                            <i class="fa-solid fa-store text-brand-400"></i>
+                            <span>Filtrar por Loja / Site</span>
+                        </div>
+                        <span id="resultsCount" class="text-xs text-slate-400">0 ofertas</span>
+                    </div>
+
+                    <!-- Store Chips List -->
+                    <div id="storeFiltersContainer" class="flex flex-wrap gap-2 pt-1">
+                        <!-- Chips injected by JS -->
+                    </div>
+                </div>
+
+                <!-- Price and Keyword Fine-tuning -->
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-slate-900/60 border border-slate-800 text-xs">
+                    
+                    <!-- Search inside results -->
+                    <div class="flex items-center gap-2 w-full sm:w-auto flex-1 max-w-xs">
+                        <i class="fa-solid fa-filter text-slate-400"></i>
+                        <input 
+                            type="text" 
+                            id="filterKeyword" 
+                            placeholder="Filtrar modelo (ex: Midnight, Branco)..." 
+                            oninput="renderOffers()"
+                            class="w-full bg-slate-800 text-slate-200 rounded-lg px-3 py-1.5 border border-slate-700 focus:outline-none focus:border-brand-500"
+                        />
+                    </div>
+
+                    <!-- Price range -->
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-slate-400">Mín: R$</span>
+                            <input 
+                                type="number" 
+                                id="minPriceInput" 
+                                placeholder="0" 
+                                oninput="renderOffers()" 
+                                class="w-20 bg-slate-800 text-slate-200 rounded-lg px-2.5 py-1.5 border border-slate-700 focus:outline-none focus:border-brand-500 font-mono"
+                            />
+                        </div>
+
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-slate-400">Máx: R$</span>
+                            <input 
+                                type="number" 
+                                id="maxPriceInput" 
+                                placeholder="Sem limite" 
+                                oninput="renderOffers()" 
+                                class="w-24 bg-slate-800 text-slate-200 rounded-lg px-2.5 py-1.5 border border-slate-700 focus:outline-none focus:border-brand-500 font-mono"
+                            />
+                        </div>
+
+                        <!-- Sort selector -->
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-slate-400">Ordem:</span>
+                            <select id="sortSelect" onchange="renderOffers()" class="bg-slate-800 text-slate-200 rounded-lg px-3 py-1.5 border border-slate-700 focus:outline-none focus:border-brand-500">
+                                <option value="price_asc">Menor Preço ➔ Maior</option>
+                                <option value="price_desc">Maior Preço ➔ Menor</option>
+                                <option value="store">Loja (A-Z)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Product Cards Grid -->
+            <div id="offersGrid" class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <!-- Cards injected here -->
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Modal: Criar Alerta de Preço -->
+    <div id="alertModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+                        <i class="fa-solid fa-bell"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white">Criar Alerta de Preço</h3>
+                </div>
+                <button onclick="closeAlertsModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p class="text-xs text-slate-400 mb-4">Seja avisado quando o valor atingir a sua meta de compra.</p>
+
+            <form id="alertForm" onsubmit="handleCreateAlert(event)" class="space-y-4">
+                <div>
+                    <label class="text-xs font-semibold text-slate-300 block mb-1">Produto a monitorar</label>
+                    <input type="text" id="alertQuery" required placeholder="Ex: Controle PS5 DualSense" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-brand-500">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-slate-300 block mb-1">Preço Alvo Desejado (R$)</label>
+                    <input type="number" step="0.01" id="alertPrice" required placeholder="Ex: 350.00" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-brand-500">
+                </div>
+                <button type="submit" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm transition shadow-lg shadow-emerald-600/20">
+                    Salvar Alerta
+                </button>
+            </form>
+
+            <div class="mt-6 border-t border-slate-800 pt-4">
+                <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Seus Alertas Ativos</h4>
+                <div id="alertsList" class="space-y-2 max-h-40 overflow-y-auto text-xs">
+                    <!-- Lista de alertas -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Favoritos -->
+    <div id="favModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center">
+                        <i class="fa-solid fa-heart"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white">Ofertas Salvas</h3>
+                </div>
+                <button onclick="closeFavoritesModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div id="favoritesList" class="space-y-3 max-h-96 overflow-y-auto pr-1">
+                <!-- Lista de favoritos -->
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        let currentResults = null;
+        let allOffers = [];
+        let selectedStore = "TODAS";
+
+        // Search Form
+        document.getElementById('searchForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const query = document.getElementById('searchInput').value.trim();
+            if (!query) return;
+            executeSearch(query);
+        });
+
+        function quickSearch(term) {
+            document.getElementById('searchInput').value = term;
+            executeSearch(term);
+        }
+
+        async function executeSearch(query) {
+            document.getElementById('loadingState').classList.remove('hidden');
+            document.getElementById('resultsContainer').classList.add('hidden');
+            document.getElementById('searchBtn').disabled = true;
+
+            try {
+                const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+                const data = await response.json();
+                currentResults = data;
+                allOffers = [...(data.offers || [])];
+                selectedStore = "TODAS";
+
+                renderAllResults();
+            } catch (err) {
+                alert("Erro ao pesquisar preços. Verifique se o servidor está ativo.");
+                console.error(err);
+            } finally {
+                document.getElementById('loadingState').classList.add('hidden');
+                document.getElementById('searchBtn').disabled = false;
+            }
+        }
+
+        function renderAllResults() {
+            if (!currentResults || currentResults.total_found === 0) {
+                alert("Nenhuma oferta encontrada para essa busca.");
+                return;
+            }
+
+            document.getElementById('resultsContainer').classList.remove('hidden');
+            renderStoreFilters();
+            renderBestDealBanner();
+            renderOffers();
+        }
+
+        function renderStoreFilters() {
+            const container = document.getElementById('storeFiltersContainer');
+            
+            // Contar ocorrências por loja
+            const storeCounts = {};
+            allOffers.forEach(o => {
+                const s = cleanStoreName(o.store);
+                storeCounts[s] = (storeCounts[s] || 0) + 1;
+            });
+
+            // Ordenar lojas com mais ofertas primeiro
+            const sortedStores = Object.keys(storeCounts).sort((a, b) => storeCounts[b] - storeCounts[a]);
+
+            let chipsHtml = `
+                <button 
+                    onclick="selectStoreFilter('TODAS')" 
+                    class="filter-chip px-3 py-1.5 rounded-xl border text-xs font-semibold transition ${selectedStore === 'TODAS' ? 'bg-brand-600 text-white border-brand-500 shadow-md shadow-brand-500/25' : 'bg-slate-800/80 border-slate-700 text-slate-300 hover:bg-slate-800'}">
+                    ⭐ Todas as Lojas (${allOffers.length})
+                </button>
+            `;
+
+            sortedStores.forEach(store => {
+                const isSelected = selectedStore === store;
+                const icon = getStoreIcon(store);
+                chipsHtml += `
+                    <button 
+                        onclick="selectStoreFilter('${escapeHtml(store)}')" 
+                        class="filter-chip px-3 py-1.5 rounded-xl border text-xs font-semibold transition flex items-center gap-1.5 ${isSelected ? 'bg-brand-600 text-white border-brand-500 shadow-md shadow-brand-500/25' : 'bg-slate-800/80 border-slate-700 text-slate-300 hover:bg-slate-800'}">
+                        ${icon} <span>${store}</span> <span class="text-[10px] px-1.5 py-0.2 rounded-full ${isSelected ? 'bg-white/20 text-white' : 'bg-slate-700 text-slate-400'}">${storeCounts[store]}</span>
+                    </button>
+                `;
+            });
+
+            container.innerHTML = chipsHtml;
+        }
+
+        function selectStoreFilter(storeName) {
+            selectedStore = storeName;
+            renderStoreFilters();
+            renderOffers();
+        }
+
+        function cleanStoreName(store) {
+            if (!store) return "Zoom / Lojas Parceiras";
+            let s = store.trim();
+            if (s.toLowerCase().startsWith('via ')) s = s.substring(4).trim();
+            if (s.toLowerCase().includes('amazon')) return 'Amazon Brasil';
+            if (s.toLowerCase().includes('kabum')) return 'KaBuM!';
+            if (s.toLowerCase().includes('mercado livre')) return 'Mercado Livre';
+            if (s.toLowerCase().includes('magalu') || s.toLowerCase().includes('magazine luiza')) return 'Magazine Luiza';
+            if (s.toLowerCase().includes('fast shop')) return 'Fast Shop';
+            if (s.toLowerCase().includes('casas bahia')) return 'Casas Bahia';
+            if (s.toLowerCase().includes('shopee')) return 'Shopee';
+            return s;
+        }
+
+        function getStoreIcon(store) {
+            const s = store.toLowerCase();
+            if (s.includes('amazon')) return '<i class="fa-brands fa-amazon text-amber-400"></i>';
+            if (s.includes('kabum')) return '<i class="fa-solid fa-gamepad text-orange-400"></i>';
+            if (s.includes('mercado livre')) return '<i class="fa-solid fa-handshake text-yellow-400"></i>';
+            if (s.includes('magalu') || s.includes('magazine')) return '<i class="fa-solid fa-bag-shopping text-blue-400"></i>';
+            if (s.includes('fast shop')) return '<i class="fa-solid fa-bolt text-red-400"></i>';
+            return '<i class="fa-solid fa-store text-slate-400"></i>';
+        }
+
+        function getValidLink(offer) {
+            if (offer.link && offer.link.startsWith('http')) {
+                return offer.link;
+            }
+            return `https://www.zoom.com.br/search?q=${encodeURIComponent(offer.title)}`;
+        }
+
+        function renderBestDealBanner() {
+            const ch = currentResults.cheapest;
+            const container = document.getElementById('bestDealSection');
+            if (!ch) return;
+
+            const storeName = cleanStoreName(ch.store);
+            const validLink = getValidLink(ch);
+            const savingsText = currentResults.savings_vs_avg > 0 
+                ? `<span class="text-emerald-400 font-bold">${currentResults.savings_vs_avg_formatted} mais barato</span> que a média` 
+                : `Menor preço registrado`;
+
+            container.innerHTML = `
+                <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800/80 to-slate-900 border-2 border-emerald-500/40 p-6 sm:p-8 best-deal-glow">
+                    <div class="absolute top-0 right-0 bg-emerald-500 text-slate-950 text-xs font-extrabold uppercase tracking-wider px-4 py-1.5 rounded-bl-2xl flex items-center gap-1 shadow-md">
+                        <i class="fa-solid fa-trophy"></i> Menor Preço Encontrado
+                    </div>
+
+                    <div class="flex flex-col md:flex-row items-center gap-6">
+                        <div class="w-32 h-32 sm:w-40 sm:h-40 rounded-2xl bg-white/5 border border-slate-700/50 flex items-center justify-center p-3 shrink-0 overflow-hidden">
+                            ${ch.image_url ? `<img src="${ch.image_url}" alt="${ch.title}" class="max-h-full max-w-full object-contain">` : `<i class="fa-solid fa-box-open text-4xl text-slate-600"></i>`}
+                        </div>
+
+                        <div class="flex-1 text-center md:text-left">
+                            <span class="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-md bg-slate-800 text-slate-200 border border-slate-700 mb-2">
+                                ${getStoreIcon(storeName)} Loja: <strong class="text-white">${storeName}</strong>
+                            </span>
+                            <h3 class="text-xl sm:text-2xl font-bold text-white line-clamp-2 mb-2">${ch.title}</h3>
+                            <p class="text-xs text-slate-400 mb-3">
+                                💡 Economia: ${savingsText}
+                            </p>
+
+                            <div class="flex flex-wrap items-baseline gap-3 justify-center md:justify-start">
+                                <span class="text-3xl sm:text-4xl font-black text-emerald-400">${ch.price_formatted}</span>
+                                ${currentResults.average_price > 0 ? `<span class="text-xs text-slate-400">Média: <s class="text-slate-500">${currentResults.average_price_formatted}</s></span>` : ''}
+                            </div>
+                        </div>
+
+                        <div class="shrink-0 flex flex-col gap-2 w-full md:w-auto">
+                            <a href="${validLink}" target="_blank" rel="noopener noreferrer" class="px-6 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-base transition shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2">
+                                <span>Ir para a Loja (${storeName})</span>
+                                <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                            </a>
+                            <button onclick="saveToFavorites('${escapeHtml(ch.title)}', ${ch.price}, '${escapeHtml(storeName)}', '${escapeHtml(validLink)}', '${escapeHtml(ch.image_url || '')}')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs text-slate-300 transition flex items-center justify-center gap-1.5">
+                                <i class="fa-regular fa-heart text-rose-400"></i> Salvar Oferta
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderOffers() {
+            const grid = document.getElementById('offersGrid');
+            const sortMode = document.getElementById('sortSelect').value;
+            const minPrice = parseFloat(document.getElementById('minPriceInput').value) || 0;
+            const maxPrice = parseFloat(document.getElementById('maxPriceInput').value) || Infinity;
+            const keyword = document.getElementById('filterKeyword').value.trim().toLowerCase();
+
+            let filtered = allOffers.filter(o => {
+                const storeName = cleanStoreName(o.store);
+                const matchesStore = selectedStore === "TODAS" || storeName === selectedStore;
+                const matchesPrice = o.price >= minPrice && o.price <= maxPrice;
+                const matchesKeyword = !keyword || o.title.toLowerCase().includes(keyword) || storeName.toLowerCase().includes(keyword);
+                return matchesStore && matchesPrice && matchesKeyword;
+            });
+
+            if (sortMode === 'price_asc') {
+                filtered.sort((a, b) => a.price - b.price);
+            } else if (sortMode === 'price_desc') {
+                filtered.sort((a, b) => b.price - a.price);
+            } else if (sortMode === 'store') {
+                filtered.sort((a, b) => cleanStoreName(a.store).localeCompare(cleanStoreName(b.store)));
+            }
+
+            document.getElementById('resultsCount').innerText = `${filtered.length} ofertas exibidas (de ${allOffers.length})`;
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-12 text-center text-slate-400">
+                        <i class="fa-solid fa-filter-circle-xmark text-4xl mb-3 text-slate-600"></i>
+                        <p class="text-sm">Nenhuma oferta encontrada com os filtros selecionados.</p>
+                        <button onclick="clearFilters()" class="mt-3 px-3 py-1.5 rounded-lg bg-slate-800 text-xs text-brand-400 hover:text-brand-300">Limpar Filtros</button>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filtered.map((offer, idx) => {
+                const storeName = cleanStoreName(offer.store);
+                const validLink = getValidLink(offer);
+                const isCheapest = idx === 0 && sortMode === 'price_asc' && selectedStore === "TODAS";
+
+                return `
+                    <div class="relative rounded-2xl bg-slate-900 border ${isCheapest ? 'border-emerald-500/50 bg-slate-900/90 shadow-lg shadow-emerald-500/10' : 'border-slate-800 hover:border-slate-700'} p-5 flex flex-col justify-between transition hover:-translate-y-1">
+                        ${offer.discount_pct && offer.discount_pct > 5 ? `
+                            <div class="absolute top-3 right-3 px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold">
+                                -${offer.discount_pct}%
+                            </div>
+                        ` : ''}
+
+                        <div>
+                            <!-- Imagem & Loja -->
+                            <div class="h-40 w-full rounded-xl bg-slate-950/60 border border-slate-800/80 flex items-center justify-center p-3 mb-4 overflow-hidden">
+                                ${offer.image_url ? `<img src="${offer.image_url}" alt="${offer.title}" class="max-h-full max-w-full object-contain">` : `<i class="fa-solid fa-image text-3xl text-slate-700"></i>`}
+                            </div>
+
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-semibold px-2.5 py-0.5 rounded-md bg-slate-800 text-slate-200 border border-slate-700 flex items-center gap-1.5">
+                                    ${getStoreIcon(storeName)} ${storeName}
+                                </span>
+                                <span class="text-[10px] text-slate-500 font-mono">${offer.source}</span>
+                            </div>
+
+                            <h4 class="text-sm font-semibold text-white line-clamp-2 mb-3" title="${offer.title}">${offer.title}</h4>
+                        </div>
+
+                        <div class="pt-4 border-t border-slate-800/80 mt-2">
+                            <div class="flex items-baseline justify-between mb-3">
+                                <div>
+                                    <span class="text-xs text-slate-400 block">Preço à vista</span>
+                                    <span class="text-xl font-bold ${isCheapest ? 'text-emerald-400' : 'text-white'}">${offer.price_formatted}</span>
+                                </div>
+                                <button onclick="saveToFavorites('${escapeHtml(offer.title)}', ${offer.price}, '${escapeHtml(storeName)}', '${escapeHtml(validLink)}', '${escapeHtml(offer.image_url || '')}')" class="text-slate-400 hover:text-rose-400 p-2 text-sm transition" title="Favoritar">
+                                    <i class="fa-regular fa-heart"></i>
+                                </button>
+                            </div>
+
+                            <a href="${validLink}" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 rounded-xl ${isCheapest ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-600/20' : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700'} text-xs font-semibold transition flex items-center justify-center gap-1.5">
+                                <span>Ver Oferta na ${storeName}</span>
+                                <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function clearFilters() {
+            selectedStore = "TODAS";
+            document.getElementById('minPriceInput').value = '';
+            document.getElementById('maxPriceInput').value = '';
+            document.getElementById('filterKeyword').value = '';
+            renderStoreFilters();
+            renderOffers();
+        }
+
+        async function saveToFavorites(title, price, store, link, image_url) {
+            try {
+                const res = await fetch('/api/favorites', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({title, price, store, link, image_url})
+                });
+                const data = await res.json();
+                alert(data.added ? "⭐ Oferta adicionada aos favoritos!" : "Oferta removida dos favoritos.");
+            } catch(e) {
+                alert("Erro ao salvar favorito.");
+            }
+        }
+
+        // Modals
+        function openAlertsModal() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (query) document.getElementById('alertQuery').value = query;
+            loadAlerts();
+            document.getElementById('alertModal').classList.remove('hidden');
+        }
+        function closeAlertsModal() {
+            document.getElementById('alertModal').classList.add('hidden');
+        }
+
+        async function handleCreateAlert(e) {
+            e.preventDefault();
+            const query = document.getElementById('alertQuery').value.trim();
+            const target_price = parseFloat(document.getElementById('alertPrice').value);
+            
+            await fetch('/api/alerts', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({query, target_price})
+            });
+            alert(`🔔 Alerta salvo! Você será notificado quando encontrar ${query} por até R$ ${target_price}`);
+            loadAlerts();
+        }
+
+        async function loadAlerts() {
+            const res = await fetch('/api/alerts');
+            const list = await res.json();
+            const container = document.getElementById('alertsList');
+            if (!list.length) {
+                container.innerHTML = `<p class="text-slate-500 italic">Nenhum alerta cadastrado ainda.</p>`;
+                return;
+            }
+            container.innerHTML = list.map(a => `
+                <div class="flex items-center justify-between p-2 rounded-lg bg-slate-800/80 border border-slate-700">
+                    <span class="text-slate-200">${a.query}</span>
+                    <span class="text-emerald-400 font-bold">R$ ${a.target_price}</span>
+                </div>
+            `).join('');
+        }
+
+        async function openFavoritesModal() {
+            const res = await fetch('/api/favorites');
+            const list = await res.json();
+            const container = document.getElementById('favoritesList');
+            document.getElementById('favModal').classList.remove('hidden');
+
+            if (!list.length) {
+                container.innerHTML = `<p class="text-slate-400 text-center py-6">Nenhum produto favoritado ainda.</p>`;
+                return;
+            }
+
+            container.innerHTML = list.map(f => `
+                <div class="flex items-center justify-between gap-4 p-3 rounded-xl bg-slate-800/80 border border-slate-700">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-slate-900 rounded-lg p-1 shrink-0 flex items-center justify-center">
+                            ${f.image_url ? `<img src="${f.image_url}" class="max-h-full max-w-full object-contain">` : `<i class="fa-solid fa-box text-slate-600"></i>`}
+                        </div>
+                        <div>
+                            <h5 class="text-xs font-semibold text-white line-clamp-1">${f.title}</h5>
+                            <span class="text-[10px] text-slate-400">${f.store}</span>
+                        </div>
+                    </div>
+                    <div class="text-right shrink-0">
+                        <span class="text-sm font-bold text-emerald-400 block">R$ ${f.price}</span>
+                        <a href="${f.link}" target="_blank" class="text-[10px] text-brand-400 hover:underline">Ver Loja ➔</a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function closeFavoritesModal() {
+            document.getElementById('favModal').classList.add('hidden');
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        }
+    </script>
+</body>
+</html>

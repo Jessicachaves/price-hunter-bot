@@ -1,0 +1,28 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Ambientes virtuais
+.env
+.venv/
+env/
+venv/
+ENV/
+
+# Bancos de dados locais
+*.db
+*.sqlite3
+
+# Arquivos de log e depuração
+*.log
+*.png
+
+# IDEs
+.vscode/
+.idea/
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
