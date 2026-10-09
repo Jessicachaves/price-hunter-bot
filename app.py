@@ -99,7 +99,7 @@ if __name__ == "__main__":
     except Exception:
         pass
     host = os.getenv("HOST", "0.0.0.0")
-    port = int(os.getenv("PORT", 8000))
+    port = int(os.getenv("PORT", 8080))
     url = f"http://localhost:{port}"
     print(f"\n=======================================================")
     print(f"🚀 Radar de Preços Iniciado com Sucesso!")
