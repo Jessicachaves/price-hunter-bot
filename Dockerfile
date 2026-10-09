@@ -6,12 +6,13 @@ ENV PORT=8080
 
 WORKDIR /app
 
-# Dependências do sistema para o Playwright e display virtual X11 (Xvfb)
+# Dependências do sistema para o Playwright e display virtual X11 (Xvfb + xauth)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     wget \
     gnupg \
     xvfb \
+    xauth \
     && rm -rf /var/lib/apt/lists/*
 
 # Instalar dependências Python
@@ -25,5 +26,5 @@ COPY . .
 
 EXPOSE 8080
 
-CMD ["xvfb-run", "--auto-servernum", "--server-args=-screen 0 1280x900x24", "python", "app.py"]
+CMD ["xvfb-run", "-a", "--server-args=-screen 0 1280x900x24", "python", "app.py"]
 
