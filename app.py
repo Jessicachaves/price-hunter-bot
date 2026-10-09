@@ -98,6 +98,14 @@ def diagnostico():
         try:
             r = cffi.get(url, impersonate="chrome124", timeout=12)
             out[nome] = {"status": r.status_code, "bytes": len(r.text), "final_url": str(r.url)[:120]}
+            if nome == "bing_shopping":
+                t = r.text
+                out[nome].update({
+                    "br_gOffCard": t.count("br-gOffCard"),
+                    "cifrao": t.count("R$"),
+                    "usd": t.count("US$") + t.count("$"),
+                    "titulo": t.split("<title>")[1].split("</title>")[0][:100] if "<title>" in t else "",
+                })
         except Exception as e:
             out[nome] = {"erro": str(e)[:200]}
     try:
