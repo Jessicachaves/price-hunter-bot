@@ -28,7 +28,11 @@ class FavoriteRequest(BaseModel):
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    try:
+        return templates.TemplateResponse(request=request, name="index.html")
+    except Exception:
+        with open("templates/index.html", "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
 
 @app.get("/api/search")
 def api_search(q: str = Query(..., min_length=1)):
@@ -86,8 +90,13 @@ def startup_event():
     import threading
     try:
         from telegram_bot import bot
-        if bot:
-            threading.Thread(target=bot.infinity_polling, daemon=True).start()
+        if bot and getattr(bot, "token", None) and ":" in str(bot.token) and "COLOQUE" not in str(bot.token):
+            def run_bot():
+                try:
+                    bot.infinity_polling(timeout=20, long_polling_timeout=20)
+                except Exception as b_err:
+                    print(f"⚠️ Erro no bot do Telegram: {b_err}")
+            threading.Thread(target=run_bot, daemon=True).start()
             print("🤖 Bot do Telegram iniciado em segundo plano junto com o servidor!")
     except Exception as e:
         print(f"ℹ️ Bot do Telegram não iniciado: {e}")
