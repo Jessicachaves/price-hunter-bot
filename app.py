@@ -86,6 +86,20 @@ async def get_history():
 
 @app.on_event("startup")
 def startup_event():
+    # No Linux/Docker, garante um display virtual X11 ativo para o Playwright
+    if sys.platform.startswith("linux") and not os.environ.get("DISPLAY"):
+        try:
+            import subprocess
+            subprocess.Popen(
+                ["Xvfb", ":99", "-screen", "0", "1280x900x24", "-nolisten", "tcp", "-ac"],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )
+            os.environ["DISPLAY"] = ":99"
+            print("[INFO] Display virtual Xvfb ativo em :99")
+        except Exception as x_err:
+            print(f"[INFO] Xvfb: {x_err}")
+
     # Inicializa o Bot do Telegram em segundo plano se o token estiver configurado
     import threading
     try:

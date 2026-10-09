@@ -27,10 +27,11 @@ def format_brl(val: float) -> str:
 def search_bing_shopping(query: str, limit: int = 30) -> List[ProductOffer]:
     results = []
     encoded_query = urllib.parse.quote(query)
-    url = f"https://www.bing.com/shop?q={encoded_query}"
+    url = f"https://www.bing.com/shop?q={encoded_query}&setmkt=pt-BR&setlang=pt-BR&cc=BR"
     
     try:
-        resp = requests.get(url, impersonate="chrome124", timeout=12)
+        cookies = {'_EDGE_S': 'mkt=pt-br', 'SRCHHPGUSR': 'WTS=638&NRSLT=50'}
+        resp = requests.get(url, cookies=cookies, impersonate="chrome124", timeout=12)
         if resp.status_code != 200:
             return results
             
