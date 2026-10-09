@@ -95,11 +95,11 @@ def startup_event():
                 try:
                     bot.infinity_polling(timeout=20, long_polling_timeout=20)
                 except Exception as b_err:
-                    print(f"⚠️ Erro no bot do Telegram: {b_err}")
+                    print(f"[ERROR] Erro no bot do Telegram: {b_err}")
             threading.Thread(target=run_bot, daemon=True).start()
-            print("🤖 Bot do Telegram iniciado em segundo plano junto com o servidor!")
+            print("[INFO] Bot do Telegram iniciado em segundo plano")
     except Exception as e:
-        print(f"ℹ️ Bot do Telegram não iniciado: {e}")
+        print(f"[INFO] Bot do Telegram nao iniciado: {e}")
 
 if __name__ == "__main__":
     import uvicorn
@@ -111,8 +111,8 @@ if __name__ == "__main__":
     port = int(os.getenv("PORT", 8080))
     url = f"http://localhost:{port}"
     print(f"\n=======================================================")
-    print(f"🚀 Radar de Preços Iniciado com Sucesso!")
-    print(f"🌐 Acesse no seu navegador: {url}")
+    print(f"Radar de Precos - Servidor ativo")
+    print(f"Acesse: {url}")
     print(f"=======================================================\n")
     uvicorn.run("app:app", host=host, port=port, reload=False)
 

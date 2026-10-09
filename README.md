@@ -1,8 +1,8 @@
-# 🏷️ Radar de Preços - Comparador Inteligente Multilojas
+# Radar de Preços - Comparador Multilojas
 
-Um aplicativo completo em Python, FastAPI e Web moderna para **pesquisar, comparar preços e encontrar onde qualquer produto está mais barato** em tempo real em dezenas de lojas brasileiras (Amazon Brasil, KaBuM!, Mercado Livre, Magazine Luiza, Zoom/Buscapé e mais).
+Aplicativo em Python, FastAPI e Web moderna para **pesquisar, comparar preços e encontrar onde qualquer produto está mais barato** em tempo real nas principais lojas do Brasil (Amazon Brasil, KaBuM!, Mercado Livre, Magazine Luiza, Zoom/Buscapé e agregadores).
 
-Possui **interface web interativa**, **bot do Telegram integrado** e **filtro inteligente de relevância** para não confundir o produto buscado com acessórios.
+Possui **interface web interativa**, **bot do Telegram integrado** e **filtro de relevância** para priorizar ofertas diretas do item pesquisado.
 
 <p align="center">
   <img src="assets/preview.png" alt="Radar de Preços - Interface Web" width="100%" />
@@ -10,23 +10,23 @@ Possui **interface web interativa**, **bot do Telegram integrado** e **filtro in
 
 ---
 
-## ✨ Principais Recursos
+## Principais Recursos
 
-1. ⚡ **Busca Paralela Multilojas**: Consulta os principais e-commerces e agregadores do Brasil em segundos com requisições assíncronas concorrentes.
-2. 🏆 **Destaque do Menor Preço**: Identifica automaticamente a melhor oferta, link direto de compra e a loja mais barata.
-3. 💡 **Cálculo de Economia**: Exibe quanto você economiza em relação à média do mercado.
-4. 🎯 **Filtro Inteligente de Palavras-chave**: Busca puramente baseada no que você digitar, sem bloquear produtos legítimos.
-5. 🎨 **Interface Visual Moderna (App Web)**:
+1. **Busca Paralela Multilojas**: Consulta os principais e-commerces e agregadores do Brasil em segundos com requisições concorrentes.
+2. **Destaque do Menor Preço**: Identifica automaticamente a melhor oferta, link direto de compra e a loja mais barata.
+3. **Cálculo de Economia**: Exibe a economia em relação à média do mercado.
+4. **Filtro de Palavras-chave**: Busca consistente baseada na consulta informada.
+5. **Interface Visual (App Web)**:
    - Cards com foto do produto, selo da loja, preço à vista e descontos.
    - Filtros dinâmicos por loja e faixa de preço.
    - Sistema de favoritos (watchlist de produtos).
-6. 🔔 **Alertas de Preço**: Cadastre seu preço-alvo para monitoramento.
-7. 🤖 **Bot do Telegram Integrado**: Pesquise preços e receba as melhores ofertas diretamente no celular.
-8. 🐳 **Pronto para Nuvem / Docker**: Execução 24/7 em qualquer servidor ou VPS com um único comando.
+6. **Alertas de Preço**: Cadastro de preço-alvo para monitoramento contínuo.
+7. **Bot do Telegram Integrado**: Pesquisa de preços e consulta de ofertas diretamente pelo Telegram.
+8. **Pronto para Nuvem / Docker**: Execução contínua em container Linux.
 
 ---
 
-## 🛠️ Instalação e Configuração
+## Instalação e Configuração
 
 ### 1. Clonar o repositório e instalar dependências
 ```bash
@@ -49,36 +49,33 @@ Se desejar usar o bot no Telegram:
 
 ---
 
-## 🚀 Como Executar Localmente
+## Como Executar Localmente
 
 ### Opção A: Interface Web + Bot do Telegram Juntos
 ```bash
 python app.py
 ```
-Acesse no navegador: **`http://127.0.0.1:8000`**  
+Acesse no navegador: **`http://127.0.0.1:8080`**  
 *(Se o token do Telegram estiver configurado no `.env`, o bot iniciará automaticamente em segundo plano).*
-
-*(No Windows, você também pode dar um duplo clique em `Iniciar_Radar_Precos.bat`)*
 
 ### Opção B: Bot do Telegram Standalone
 ```bash
 python telegram_bot.py
 ```
 
-### Opção C: Terminal (CLI Rápido)
+### Opção C: Terminal (CLI)
 ```bash
 python cli.py "controle ps5"
-python cli.py "cabo para controle"
 python cli.py "iphone 15"
 ```
 
 ---
 
-## ☁️ Como Rodar 24/7 em um Servidor (Docker)
+## Como Rodar 24/7 em um Servidor (Docker)
 
-O projeto já inclui `Dockerfile` e `docker-compose.yml` otimizados para produção.
+O projeto inclui `Dockerfile` e `docker-compose.yml` otimizados para produção.
 
-Para rodar em qualquer VPS (DigitalOcean, AWS, Oracle Cloud Free Tier, Hetzner) ou serviço de container:
+Para rodar em qualquer VPS (DigitalOcean, AWS, Hetzner, etc.):
 
 ```bash
 # 1. Configurar variáveis de ambiente
@@ -88,15 +85,15 @@ cp .env.example .env
 docker compose up -d --build
 ```
 
-O container subirá automaticamente com o navegador Chromium e manterá tanto o servidor web quanto o bot do Telegram funcionando 24 horas por dia, reiniciando sozinho se o servidor reiniciar.
+O container executa o Chromium e mantém o servidor web e o bot do Telegram ativos continuamente.
 
 ---
 
-## 📁 Estrutura do Projeto
+## Estrutura do Projeto
 
 ```text
 ├── scrapers/              # Módulos de busca por loja
-│   ├── mercadolivre.py    # Mercado Livre (Playwright Stealth)
+│   ├── mercadolivre.py    # Mercado Livre
 │   ├── amazon.py          # Amazon Brasil
 │   ├── kabum.py           # KaBuM!
 │   ├── buscape.py         # Zoom / Buscapé
@@ -117,5 +114,5 @@ O container subirá automaticamente com o navegador Chromium e manterá tanto o 
 
 ---
 
-## 📄 Licença
-Distribuído sob a licença MIT. Sinta-se livre para usar e modificar!
+## Licença
+Distribuído sob a licença MIT. Livre para uso e modificação.
