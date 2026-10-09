@@ -17,7 +17,9 @@ ENV/
 
 # Arquivos de log e depuração
 *.log
-*.png
+debug_*.png
+!assets/*.png
+!docs/*.png
 
 # IDEs
 .vscode/

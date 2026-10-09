@@ -21,7 +21,8 @@ SYNONYMS = {
 PREFIX_NOUNS = {
     "kit", "grip", "grips", "capa", "capinha", "case", "suporte", "base", "dock",
     "carregador", "bateria", "pelicula", "skin", "adesivo", "analogico", "analogicos",
-    "extensor", "extensores", "protetor", "reparo", "peca", "pecas"
+    "extensor", "extensores", "protetor", "reparo", "peca", "pecas", "cabo", "cabos",
+    "adaptador", "adaptadores"
 }
 
 def normalize(text: str) -> str:

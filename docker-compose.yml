@@ -11,3 +11,4 @@ services:
       - .env
     volumes:
       - ./price_hunter.db:/app/price_hunter.db
+

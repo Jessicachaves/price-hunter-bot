@@ -4,6 +4,10 @@ Um aplicativo completo em Python, FastAPI e Web moderna para **pesquisar, compar
 
 Possui **interface web interativa**, **bot do Telegram integrado** e **filtro inteligente de relevância** para não confundir o produto buscado com acessórios.
 
+<p align="center">
+  <img src="assets/preview.png" alt="Radar de Preços - Interface Web" width="100%" />
+</p>
+
 ---
 
 ## ✨ Principais Recursos
