@@ -24,19 +24,34 @@ def parse_price(price_str: str) -> Optional[float]:
 def format_brl(val: float) -> str:
     return f"R$ {val:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
 
-def search_amazon(query: str, limit: int = 25) -> List[ProductOffer]:
+def search_amazon(query: str, limit: int = 40) -> List[ProductOffer]:
     results = []
     encoded_query = urllib.parse.quote(query)
     url = f"https://www.amazon.com.br/s?k={encoded_query}"
     
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-        'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8',
+        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+        'accept-language': 'pt-BR,pt;q=0.9,en-US;q=0.8',
+        'sec-ch-ua': '"Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"Windows"',
+        'sec-fetch-dest': 'document',
+        'sec-fetch-mode': 'navigate',
+        'sec-fetch-site': 'none',
+        'sec-fetch-user': '?1',
+        'upgrade-insecure-requests': '1',
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
     }
     
     try:
-        resp = requests.get(url, headers=headers, impersonate="chrome124", timeout=12)
+        session = requests.Session()
+        resp = session.get(url, headers=headers, impersonate="chrome124", timeout=12)
+        
+        # Se a Amazon retornar 503 temporário, visita a página inicial para inicializar sessão e tenta de novo
+        if resp.status_code == 503:
+            session.get("https://www.amazon.com.br/", headers=headers, impersonate="chrome124", timeout=8)
+            resp = session.get(url, headers=headers, impersonate="chrome124", timeout=12)
+
         if resp.status_code != 200:
             return results
             

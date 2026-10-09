@@ -31,7 +31,7 @@ class ComparisonEngine:
             "KaBuM!": lambda: search_kabum(query, limit=20),
             "Zoom / Buscapé": lambda: search_buscape_zoom(query, limit=35),
             "Shopping MultiLojas": lambda: search_bing_shopping(query, limit=35),
-            "Amazon Brasil": lambda: search_amazon(query, limit=20),
+            "Amazon Brasil": lambda: search_amazon(query, limit=35),
         }
 
         future_to_source = {
