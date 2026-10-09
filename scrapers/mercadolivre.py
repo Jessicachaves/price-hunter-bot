@@ -97,25 +97,51 @@ def _parse_cards(html: str, limit: int) -> List[ProductOffer]:
     return results
 
 
+def _launch_browser(p):
+    """
+    Inicia o navegador compatível com Windows e Linux (Docker/Railway).
+    Tenta primeiro o Chromium padrão do Playwright (usando Xvfb no Linux ou GUI no Windows),
+    depois os canais Chrome/Edge do sistema, e por fim modo headless se não houver display.
+    """
+    args = [
+        "--disable-blink-features=AutomationControlled",
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-gpu",
+        "--window-position=-2400,0",
+        "--window-size=1280,900",
+    ]
+    
+    # 1. Tenta Chromium padrão do Playwright (headless=False sob Xvfb / display real)
+    try:
+        return p.chromium.launch(headless=False, args=args)
+    except Exception:
+        pass
+
+    # 2. Tenta canais instalados no sistema (Chrome, Edge)
+    for channel in ["chrome", "msedge"]:
+        try:
+            return p.chromium.launch(channel=channel, headless=False, args=args)
+        except Exception:
+            continue
+
+    # 3. Fallback: headless se for ambiente estritamente sem servidor X11
+    try:
+        return p.chromium.launch(headless=True, args=args)
+    except Exception as e:
+        print(f"[Mercado Livre] Não foi possível iniciar navegador: {e}")
+        return None
+
+
 def search_mercadolivre(query: str, limit: int = 20) -> List[ProductOffer]:
     slug = urllib.parse.quote(re.sub(r'\s+', '-', query.strip().lower()))
     url = f"https://lista.mercadolivre.com.br/{slug}"
 
     with sync_playwright() as p:
-        browser = None
-        for channel in BROWSER_CHANNELS:
-            try:
-                browser = p.chromium.launch(
-                    channel=channel,
-                    headless=False,
-                    args=["--disable-blink-features=AutomationControlled",
-                          "--window-position=-2400,0", "--window-size=1280,900"],
-                )
-                break
-            except Exception:
-                continue
+        browser = _launch_browser(p)
         if browser is None:
-            print("[Mercado Livre] Nenhum Chrome/Edge instalado encontrado.")
+            print("[Mercado Livre] Nenhum navegador compatível pôde ser iniciado.")
             return []
 
         try:
@@ -125,11 +151,13 @@ def search_mercadolivre(query: str, limit: int = 20) -> List[ProductOffer]:
             try:
                 page.wait_for_selector("div.poly-card, li.ui-search-layout__item", timeout=8000)
             except Exception:
-                print(f"[Mercado Livre] Nenhum anúncio carregou (url final: {page.url})")
-                return []
+                pass
             # Rola a página para carregar as imagens (lazy load)
-            page.mouse.wheel(0, 2500)
-            page.wait_for_timeout(600)
+            try:
+                page.mouse.wheel(0, 2500)
+                page.wait_for_timeout(600)
+            except Exception:
+                pass
             return _parse_cards(page.content(), limit)
         except Exception as e:
             print(f"[Mercado Livre] Erro: {e}")
