@@ -26,5 +26,5 @@ COPY . .
 
 EXPOSE 8080
 
-CMD ["xvfb-run", "-a", "--server-args=-screen 0 1280x900x24", "python", "app.py"]
+CMD ["python", "app.py"]
 

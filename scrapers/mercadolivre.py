@@ -97,12 +97,30 @@ def _parse_cards(html: str, limit: int) -> List[ProductOffer]:
     return results
 
 
+def _ensure_display():
+    """Garante display virtual X11 via Xvfb em servidores Linux/Docker."""
+    if sys.platform.startswith("linux") and not os.environ.get("DISPLAY"):
+        try:
+            import subprocess, time
+            subprocess.Popen(
+                ["Xvfb", ":99", "-screen", "0", "1280x900x24", "-nolisten", "tcp", "-ac"],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )
+            os.environ["DISPLAY"] = ":99"
+            time.sleep(1)
+        except Exception as e:
+            print(f"[Mercado Livre] Aviso ao inicializar Xvfb: {e}")
+
+
 def _launch_browser(p):
     """
     Inicia o navegador compatível com Windows e Linux (Docker/Railway).
     Tenta primeiro o Chromium padrão do Playwright (usando Xvfb no Linux ou GUI no Windows),
     depois os canais Chrome/Edge do sistema, e por fim modo headless se não houver display.
     """
+    _ensure_display()
+    
     args = [
         "--disable-blink-features=AutomationControlled",
         "--no-sandbox",
