@@ -84,6 +84,33 @@ async def toggle_favorite(item: FavoriteRequest):
 async def get_history():
     return JSONResponse(content=database.get_recent_searches())
 
+@app.get("/api/diagnostico")
+def diagnostico():
+    """Mostra o que cada loja responde a partir do servidor (útil para detectar bloqueio de IP)."""
+    from curl_cffi import requests as cffi
+    out = {}
+    alvos = {
+        "amazon": "https://www.amazon.com.br/s?k=controle+ps5",
+        "bing_shopping": "https://www.bing.com/shop?q=controle+ps5&setmkt=pt-BR&cc=BR",
+        "mercadolivre": "https://lista.mercadolivre.com.br/controle-ps5",
+    }
+    for nome, url in alvos.items():
+        try:
+            r = cffi.get(url, impersonate="chrome124", timeout=12)
+            out[nome] = {"status": r.status_code, "bytes": len(r.text), "final_url": str(r.url)[:120]}
+        except Exception as e:
+            out[nome] = {"erro": str(e)[:200]}
+    try:
+        from playwright.sync_api import sync_playwright
+        with sync_playwright() as p:
+            b = p.chromium.launch(headless=True, args=["--no-sandbox"])
+            out["playwright"] = "ok " + b.version
+            b.close()
+    except Exception as e:
+        out["playwright"] = "erro: " + str(e)[:300]
+    out["DISPLAY"] = os.environ.get("DISPLAY")
+    return JSONResponse(content=out)
+
 @app.on_event("startup")
 def startup_event():
     # No Linux/Docker, garante um display virtual X11 ativo para o Playwright
