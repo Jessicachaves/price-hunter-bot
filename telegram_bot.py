@@ -9,11 +9,16 @@ import database
 load_dotenv()
 
 # Obtenha o token do @BotFather no Telegram e adicione em um arquivo .env ou variável de ambiente
-TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "COLOQUE_SEU_TOKEN_AQUI")
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
+
+DUMMY_TOKENS = {"COLOQUE_SEU_TOKEN_AQUI", "123456789:ABCdefGhIJKlmNoPQRstuVWXyz", ""}
 
 bot = None
-if TELEGRAM_BOT_TOKEN and ":" in TELEGRAM_BOT_TOKEN:
-    bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
+if TELEGRAM_BOT_TOKEN and ":" in TELEGRAM_BOT_TOKEN and TELEGRAM_BOT_TOKEN not in DUMMY_TOKENS:
+    try:
+        bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
+    except Exception as e:
+        print(f"⚠️ Erro ao instanciar bot do Telegram: {e}")
 
 def setup_handlers(bot_instance):
     @bot_instance.message_handler(commands=['start', 'help', 'ajuda'])
